@@ -23,8 +23,8 @@ function chruby_auto() {
 
 			eval "$("$RUBY_ROOT/bin/ruby" - <<EOF
 begin
-  require 'rubygems'; require 'bundler'
-  puts "export auto_bundle_bin=#{File.expand_path(Bundler.settings[:bin])}" unless Bundler.settings[:bin].nil?
+	require 'rubygems'; require 'bundler'
+	puts "export auto_bundle_bin=#{File.expand_path(Bundler.settings[:bin])}" unless Bundler.settings[:bin].nil?
 rescue LoadError
 end
 EOF
