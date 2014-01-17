@@ -37,7 +37,7 @@ EOF
 				unset RUBY_AUTO_BUNDLE_BIN
 			fi
 
-			if [[ -n "$auto_bundle_bin" ]]; then
+			if [[ -z "$RUBY_AUTO_BUNDLE_BIN" && -n "$auto_bundle_bin" ]]; then
 				export RUBY_AUTO_BUNDLE_BIN="$auto_bundle_bin"
 				export PATH=$RUBY_AUTO_BUNDLE_BIN:$PATH
 			fi
