@@ -30,7 +30,7 @@ end
 EOF
 )"
 
-			if [[ -n "$RUBY_AUTO_BUNDLE_BIN" -a "$RUBY_AUTO_BUNDLE_BIN" != "$auto_bundle_bin" ]]; then
+			if [[ -n "$RUBY_AUTO_BUNDLE_BIN" && "$RUBY_AUTO_BUNDLE_BIN" != "$auto_bundle_bin" ]]; then
 				chruby_auto_binstub_reset
 				unset RUBY_AUTO_BUNDLE_BIN
 			fi
