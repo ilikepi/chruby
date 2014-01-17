@@ -8,7 +8,7 @@ function chruby_auto_binstub_reset() {
 }
 
 function chruby_auto() {
-	local dir="$PWD" version auto_bundle_bin chruby_rc
+	local dir="$PWD" version auto_bundle_bin chruby_rc original_braceexpand
 
 	until [[ -z "$dir" ]]; do
 		if { read -r version <"$dir/.ruby-version"; } 2>/dev/null || [[ -n "$version" ]]; then
@@ -21,6 +21,8 @@ function chruby_auto() {
 			fi
 
 
+
+			original_braceexpand=$(set +o | grep braceexpand)
 			set +o braceexpand
 			eval "$("$RUBY_ROOT/bin/ruby" - <<EOF
 begin
@@ -30,7 +32,7 @@ rescue LoadError
 end
 EOF
 )"
-			set -o braceexpand
+			eval $original_braceexpand
 
 			if [[ -n "$RUBY_AUTO_BUNDLE_BIN" && "$RUBY_AUTO_BUNDLE_BIN" != "$auto_bundle_bin" ]]; then
 				chruby_auto_binstub_reset
