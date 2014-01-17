@@ -6,13 +6,16 @@ function chruby_auto() {
 
 	until [[ -z "$dir" ]]; do
 		if { read -r version <"$dir/.ruby-version"; } 2>/dev/null || [[ -n "$version" ]]; then
-			if [[ "$version" == "$RUBY_AUTO_VERSION" ]]; then return
+			if [[ "$version" == "$RUBY_AUTO_VERSION" ]]; then
+				chruby_rc=0
 			else
 				RUBY_AUTO_VERSION="$version"
 				chruby "$version"
 				chruby_rc=$?
+			fi
 
-				eval "$("$RUBY_ROOT/bin/ruby" - <<EOF
+
+			eval "$("$RUBY_ROOT/bin/ruby" - <<EOF
 begin
   require 'rubygems'; require 'bundler'
   puts "export RUBY_AUTO_BUNDLE_BIN=#{File.expand_path(Bundler.settings[:bin])}" unless Bundler.settings[:bin].nil?
@@ -21,12 +24,11 @@ end
 EOF
 )"
 
-				if [[ -n "$RUBY_AUTO_BUNDLE_BIN" ]]; then
-					export PATH=$RUBY_AUTO_BUNDLE_BIN:$PATH
-				fi
-
-				return $chruby_rc
+			if [[ -n "$RUBY_AUTO_BUNDLE_BIN" ]]; then
+				export PATH=$RUBY_AUTO_BUNDLE_BIN:$PATH
 			fi
+
+			return $chruby_rc
 		fi
 
 		dir="${dir%/*}"
