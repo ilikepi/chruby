@@ -1,8 +1,14 @@
 unset RUBY_AUTO_BUNDLE_BIN
 unset RUBY_AUTO_VERSION
 
+function chruby_auto_binstub_reset() {
+	PATH=":$PATH:"
+	PATH=${PATH//:$RUBY_AUTO_BUNDLE_BIN:/:}
+	PATH="${PATH#:}"; PATH="${PATH%:}"
+}
+
 function chruby_auto() {
-	local dir="$PWD" version chruby_rc
+	local dir="$PWD" version auto_bundle_bin chruby_rc
 
 	until [[ -z "$dir" ]]; do
 		if { read -r version <"$dir/.ruby-version"; } 2>/dev/null || [[ -n "$version" ]]; then
@@ -18,13 +24,19 @@ function chruby_auto() {
 			eval "$("$RUBY_ROOT/bin/ruby" - <<EOF
 begin
   require 'rubygems'; require 'bundler'
-  puts "export RUBY_AUTO_BUNDLE_BIN=#{File.expand_path(Bundler.settings[:bin])}" unless Bundler.settings[:bin].nil?
+  puts "export auto_bundle_bin=#{File.expand_path(Bundler.settings[:bin])}" unless Bundler.settings[:bin].nil?
 rescue LoadError
 end
 EOF
 )"
 
-			if [[ -n "$RUBY_AUTO_BUNDLE_BIN" ]]; then
+			if [[ -n "$RUBY_AUTO_BUNDLE_BIN" -a "$RUBY_AUTO_BUNDLE_BIN" != "$auto_bundle_bin" ]]; then
+				chruby_auto_binstub_reset
+				unset RUBY_AUTO_BUNDLE_BIN
+			fi
+
+			if [[ -n "$auto_bundle_bin" ]]; then
+				export RUBY_AUTO_BUNDLE_BIN="$auto_bundle_bin"
 				export PATH=$RUBY_AUTO_BUNDLE_BIN:$PATH
 			fi
 
@@ -40,9 +52,7 @@ EOF
 	fi
 
 	if [[ -n "$RUBY_AUTO_BUNDLE_BIN" ]]; then
-		PATH=":$PATH:"
-		PATH=${PATH//:$RUBY_AUTO_BUNDLE_BIN:/:}
-		PATH="${PATH#:}"; PATH="${PATH%:}"
+		chruby_auto_binstub_reset
 		unset RUBY_AUTO_BUNDLE_BIN
 	fi
 }
