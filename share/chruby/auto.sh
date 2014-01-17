@@ -21,14 +21,16 @@ function chruby_auto() {
 			fi
 
 
+			set +o braceexpand
 			eval "$("$RUBY_ROOT/bin/ruby" - <<EOF
 begin
 	require 'rubygems'; require 'bundler'
-	puts "export auto_bundle_bin=#{File.expand_path(Bundler.settings[:bin])}" unless Bundler.settings[:bin].nil?
+	puts "auto_bundle_bin=#{File.expand_path(Bundler.settings[:bin], '$dir')}" unless Bundler.settings[:bin].nil?
 rescue LoadError
 end
 EOF
 )"
+			set -o braceexpand
 
 			if [[ -n "$RUBY_AUTO_BUNDLE_BIN" && "$RUBY_AUTO_BUNDLE_BIN" != "$auto_bundle_bin" ]]; then
 				chruby_auto_binstub_reset
