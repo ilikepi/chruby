@@ -3,7 +3,7 @@ unset RUBY_AUTO_VERSION
 
 function chruby_auto_binstub_reset() {
 	PATH=":$PATH:"
-	PATH=${PATH//:$RUBY_AUTO_BUNDLE_BIN:/:}
+	PATH="${PATH//:$RUBY_AUTO_BUNDLE_BIN:/:}"
 	PATH="${PATH#:}"; PATH="${PATH%:}"
 }
 
@@ -22,7 +22,7 @@ function chruby_auto() {
 
 			if [[ -n "$RUBY_ROOT" ]]; then
 
-				original_braceexpand=$(set +o | grep braceexpand)
+				original_braceexpand="$(set +o | grep braceexpand)"
 				set +o braceexpand
 				eval "$("$RUBY_ROOT/bin/ruby" - <<EOF
 begin
@@ -41,7 +41,7 @@ EOF
 
 				if [[ -z "$RUBY_AUTO_BUNDLE_BIN" && -n "$auto_bundle_bin" ]]; then
 					export RUBY_AUTO_BUNDLE_BIN="$auto_bundle_bin"
-					export PATH=$RUBY_AUTO_BUNDLE_BIN:$PATH
+					export PATH="$RUBY_AUTO_BUNDLE_BIN:$PATH"
 				fi
 
 			else
