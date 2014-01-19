@@ -20,11 +20,11 @@ function chruby_auto() {
 				chruby_rc=$?
 			fi
 
+			if [[ -n "$RUBY_ROOT" ]]; then
 
-
-			original_braceexpand=$(set +o | grep braceexpand)
-			set +o braceexpand
-			eval "$("$RUBY_ROOT/bin/ruby" - <<EOF
+				original_braceexpand=$(set +o | grep braceexpand)
+				set +o braceexpand
+				eval "$("$RUBY_ROOT/bin/ruby" - <<EOF
 begin
 	require 'rubygems'; require 'bundler'
 	puts "auto_bundle_bin=\"#{File.expand_path(Bundler.settings[:bin], '$dir').inspect}\"" unless Bundler.settings[:bin].nil?
@@ -32,16 +32,21 @@ rescue LoadError
 end
 EOF
 )"
-			eval $original_braceexpand
+				eval $original_braceexpand
+	
+				if [[ -n "$RUBY_AUTO_BUNDLE_BIN" && "$RUBY_AUTO_BUNDLE_BIN" != "$auto_bundle_bin" ]]; then
+					chruby_auto_binstub_reset
+					unset RUBY_AUTO_BUNDLE_BIN
+				fi
 
-			if [[ -n "$RUBY_AUTO_BUNDLE_BIN" && "$RUBY_AUTO_BUNDLE_BIN" != "$auto_bundle_bin" ]]; then
+				if [[ -z "$RUBY_AUTO_BUNDLE_BIN" && -n "$auto_bundle_bin" ]]; then
+					export RUBY_AUTO_BUNDLE_BIN="$auto_bundle_bin"
+					export PATH=$RUBY_AUTO_BUNDLE_BIN:$PATH
+				fi
+
+			else
 				chruby_auto_binstub_reset
 				unset RUBY_AUTO_BUNDLE_BIN
-			fi
-
-			if [[ -z "$RUBY_AUTO_BUNDLE_BIN" && -n "$auto_bundle_bin" ]]; then
-				export RUBY_AUTO_BUNDLE_BIN="$auto_bundle_bin"
-				export PATH=$RUBY_AUTO_BUNDLE_BIN:$PATH
 			fi
 
 			return $chruby_rc
