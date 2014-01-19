@@ -26,8 +26,8 @@ function chruby_auto() {
 				set +o braceexpand
 				eval "$("$RUBY_ROOT/bin/ruby" - <<EOF
 begin
-	require 'rubygems'; require 'bundler'
-	puts "auto_bundle_bin=\"#{File.expand_path(Bundler.settings[:bin], '$dir').inspect}\"" unless Bundler.settings[:bin].nil?
+	require 'shellwords'; require 'rubygems'; require 'bundler'
+	puts "auto_bundle_bin=\"#{File.expand_path(Bundler.settings[:bin], '$dir').shellescape}\"" unless Bundler.settings[:bin].nil?
 rescue LoadError
 end
 EOF
