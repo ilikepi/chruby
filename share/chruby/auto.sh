@@ -2,9 +2,12 @@ unset RUBY_AUTO_BUNDLE_BIN
 unset RUBY_AUTO_VERSION
 
 function chruby_auto_binstub_reset() {
-	PATH=":$PATH:"
-	PATH="${PATH//:$RUBY_AUTO_BUNDLE_BIN:/:}"
-	PATH="${PATH#:}"; PATH="${PATH%:}"
+	if [[ -n "$RUBY_AUTO_BUNDLE_BIN" ]]; then
+		PATH=":$PATH:"
+		PATH="${PATH//:$RUBY_AUTO_BUNDLE_BIN:/:}"
+		PATH="${PATH#:}"; PATH="${PATH%:}"
+		unset RUBY_AUTO_BUNDLE_BIN
+	fi
 }
 
 function chruby_auto() {
@@ -34,10 +37,7 @@ EOF
 )"
 				eval $original_braceexpand
 	
-				if [[ -n "$RUBY_AUTO_BUNDLE_BIN" ]]; then
-					chruby_auto_binstub_reset
-					unset RUBY_AUTO_BUNDLE_BIN
-				fi
+				chruby_auto_binstub_reset
 
 				if [[ -n "$auto_bundle_bin" ]]; then
 					export RUBY_AUTO_BUNDLE_BIN="$auto_bundle_bin"
@@ -46,7 +46,6 @@ EOF
 
 			else
 				chruby_auto_binstub_reset
-				unset RUBY_AUTO_BUNDLE_BIN
 			fi
 
 			return $chruby_rc
@@ -60,10 +59,7 @@ EOF
 		unset RUBY_AUTO_VERSION
 	fi
 
-	if [[ -n "$RUBY_AUTO_BUNDLE_BIN" ]]; then
-		chruby_auto_binstub_reset
-		unset RUBY_AUTO_BUNDLE_BIN
-	fi
+	chruby_auto_binstub_reset
 }
 
 if [[ -n "$ZSH_VERSION" ]]; then
